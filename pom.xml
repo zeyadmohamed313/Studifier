@@ -12,12 +12,12 @@
 	<parent>
 		<groupId>org.springframework.boot</groupId>
 		<artifactId>spring-boot-starter-parent</artifactId>
-		<version>3.4.1</version> <!-- Spring Boot version -->
+		<version>3.3.4</version> <!-- Spring Boot version -->
 		<relativePath/> <!-- lookup parent from repository -->
 	</parent>
 
 	<properties>
-		<java.version>17</java.version> <!-- Java version -->
+		<java.version>18</java.version> <!-- Java version -->
 	</properties>
 
 	<!-- Repositories -->
@@ -71,11 +71,9 @@
 		</dependency>
 
 
-		<dependency>
-			<groupId>org.springdoc</groupId>
-			<artifactId>springdoc-openapi-starter-webmvc-ui</artifactId>
-			<version>2.3.0</version>
-		</dependency>
+		<!-- Springdoc OpenAPI for Swagger UI -->
+
+
 
 		<!-- Database Dependencies -->
 		<dependency>
@@ -116,6 +114,15 @@
 			<artifactId>spring-boot-starter-test</artifactId>
 			<scope>test</scope>
 		</dependency>
+		<dependency>
+			<groupId>org.springdoc</groupId>
+			<artifactId>springdoc-openapi-starter-webmvc-ui</artifactId>
+			<version>2.3.0</version>
+			<!-- Hypothetical updated version -->
+		</dependency>
+
+
+
 	</dependencies>
 
 	<!-- Build Configuration -->
@@ -125,8 +132,11 @@
 				<groupId>org.apache.maven.plugins</groupId>
 				<artifactId>maven-compiler-plugin</artifactId>
 				<configuration>
-					<source>17</source>
-					<target>17</target>
+					<source>21</source>
+					<target>21</target>
+					<compilerArgs>
+						--enable-preview
+					</compilerArgs>
 				</configuration>
 			</plugin>
 			<plugin>

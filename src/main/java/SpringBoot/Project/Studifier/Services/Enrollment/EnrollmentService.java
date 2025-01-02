@@ -1,51 +1,77 @@
 package SpringBoot.Project.Studifier.Services.Enrollment;
 
+import SpringBoot.Project.Studifier.Mapper.EnrollmentMapper;
+import SpringBoot.Project.Studifier.Models.Course;
 import SpringBoot.Project.Studifier.Models.Enrollment;
+import SpringBoot.Project.Studifier.Models.User;
+import SpringBoot.Project.Studifier.Repositories.CourseRepository;
 import SpringBoot.Project.Studifier.Repositories.EnrollmentRepository;
+import SpringBoot.Project.Studifier.Repositories.UserRepository;
+import SpringBoot.Project.Studifier.Requests.EnrollmentRequestDTO;
+import SpringBoot.Project.Studifier.Responses.EnrollmentResponseDTO;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
-import java.util.Optional;
 
 @Service
 public class EnrollmentService  implements IEnrollmentService{
     @Autowired
     private EnrollmentRepository enrollmentRepository;
 
-    @Override
-    public List<Enrollment> getAllEnrollments() {
-        return enrollmentRepository.findAll();
+    @Autowired
+    private CourseRepository courseRepository;
+
+    @Autowired
+    private UserRepository userRepository;
+
+    public List<EnrollmentResponseDTO> getAllEnrollments() {
+        List<Enrollment> enrollments = enrollmentRepository.findAll();
+        return EnrollmentMapper.toResponseDTOList(enrollments);
     }
 
-    @Override
-    public Enrollment getEnrollmentById(Long id) {
-        return enrollmentRepository.findById(id).orElse(null);
+    public EnrollmentResponseDTO createEnrollment(EnrollmentRequestDTO enrollmentRequestDTO) {
+        Course course = courseRepository.findById(enrollmentRequestDTO.getCourseId())
+                .orElseThrow(() -> new IllegalArgumentException("Course not found"));
+
+        User student = userRepository.findById(enrollmentRequestDTO.getStudentId())
+                .orElseThrow(() -> new IllegalArgumentException("Student not found"));
+
+        Enrollment enrollment = EnrollmentMapper.toEntity(enrollmentRequestDTO, course, student);
+        Enrollment savedEnrollment = enrollmentRepository.save(enrollment);
+
+        return EnrollmentMapper.toResponseDTO(savedEnrollment);
     }
 
-    @Override
-    public Enrollment createEnrollment(Enrollment enrollment) {
-        return enrollmentRepository.save(enrollment);
+    public EnrollmentResponseDTO getEnrollmentById(Long id) {
+        Enrollment enrollment = enrollmentRepository.findById(id)
+                .orElseThrow(() -> new IllegalArgumentException("Enrollment not found"));
+
+        return EnrollmentMapper.toResponseDTO(enrollment);
     }
 
-    @Override
-    public Enrollment updateEnrollment(Long id, Enrollment updatedEnrollment) {
-        Optional<Enrollment> optionalEnrollment = enrollmentRepository.findById(id);
-        if (optionalEnrollment.isPresent()) {
-            Enrollment enrollment = optionalEnrollment.get();
-            enrollment.setStudent(updatedEnrollment.getStudent());
-            enrollment.setCourse(updatedEnrollment.getCourse());
-            enrollment.setEnrollmentDate(updatedEnrollment.getEnrollmentDate());
-            enrollment.setCompleted(updatedEnrollment.getCompleted());
-            enrollment.setProgressPercentage(updatedEnrollment.getProgressPercentage());
-            return enrollmentRepository.save(enrollment);
-        }
-        return null;
+    public EnrollmentResponseDTO updateEnrollment(Long id, EnrollmentRequestDTO enrollmentRequestDTO) {
+        Enrollment enrollment = enrollmentRepository.findById(id)
+                .orElseThrow(() -> new IllegalArgumentException("Enrollment not found"));
+
+        Course course = courseRepository.findById(enrollmentRequestDTO.getCourseId())
+                .orElseThrow(() -> new IllegalArgumentException("Course not found"));
+
+        User student = userRepository.findById(enrollmentRequestDTO.getStudentId())
+                .orElseThrow(() -> new IllegalArgumentException("Student not found"));
+
+        enrollment.setCourse(course);
+        enrollment.setStudent(student);
+
+        Enrollment updatedEnrollment = enrollmentRepository.save(enrollment);
+
+        return EnrollmentMapper.toResponseDTO(updatedEnrollment);
     }
 
-    @Override
     public void deleteEnrollment(Long id) {
+        if (!enrollmentRepository.existsById(id)) {
+            throw new IllegalArgumentException("Enrollment not found");
+        }
         enrollmentRepository.deleteById(id);
     }
-
 }

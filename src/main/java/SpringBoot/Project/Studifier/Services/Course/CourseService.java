@@ -1,49 +1,68 @@
 package SpringBoot.Project.Studifier.Services.Course;
 
+import SpringBoot.Project.Studifier.Mapper.CourseMapper;
 import SpringBoot.Project.Studifier.Models.Course;
+import SpringBoot.Project.Studifier.Models.User;
 import SpringBoot.Project.Studifier.Repositories.CourseRepository;
+import SpringBoot.Project.Studifier.Repositories.UserRepository;
+import SpringBoot.Project.Studifier.Requests.CourseRequestDTO;
+import SpringBoot.Project.Studifier.Responses.CourseResponseDTO;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import java.util.List;
-import java.util.Optional;
 
 @Service
-public class CourseService implements ICourseService{
+public class CourseService {
     @Autowired
     private CourseRepository courseRepository;
 
-    @Override
-    public List<Course> getAllCourses() {
-        return courseRepository.findAll();
+    @Autowired
+    private UserRepository userRepository;
+
+    public List<CourseResponseDTO> getAllCourses() {
+        List<Course> courses = courseRepository.findAll();
+        return CourseMapper.toResponseDTOList(courses);
     }
 
-    @Override
-    public Course getCourseById(Long id) {
-        return courseRepository.findById(id).orElse(null);
+    public CourseResponseDTO createCourse(CourseRequestDTO courseRequestDTO) {
+        User instructor = userRepository.findById(courseRequestDTO.getInstructorId())
+                .orElseThrow(() -> new IllegalArgumentException("Instructor not found"));
+
+        Course course = CourseMapper.toEntity(courseRequestDTO, instructor);
+        Course savedCourse = courseRepository.save(course);
+
+        return CourseMapper.toResponseDTO(savedCourse);
     }
 
-    @Override
-    public Course createCourse(Course course) {
-        return courseRepository.save(course);
+    public CourseResponseDTO getCourseById(Long id) {
+        Course course = courseRepository.findById(id)
+                .orElseThrow(() -> new IllegalArgumentException("Course not found"));
+
+        return CourseMapper.toResponseDTO(course);
     }
 
-    @Override
-    public Course updateCourse(Long id, Course updatedCourse) {
-        Optional<Course> optionalCourse = courseRepository.findById(id);
-        if (optionalCourse.isPresent()) {
-            Course course = optionalCourse.get();
-            course.setTitle(updatedCourse.getTitle());
-            course.setDescription(updatedCourse.getDescription());
-            course.setInstructor(updatedCourse.getInstructor());
-            course.setDuration(updatedCourse.getDuration());
-            course.setStartDate(updatedCourse.getStartDate());
-            return courseRepository.save(course);
-        }
-        return null;
+    public CourseResponseDTO updateCourse(Long id, CourseRequestDTO courseRequestDTO) {
+        Course course = courseRepository.findById(id)
+                .orElseThrow(() -> new IllegalArgumentException("Course not found"));
+
+        User instructor = userRepository.findById(courseRequestDTO.getInstructorId())
+                .orElseThrow(() -> new IllegalArgumentException("Instructor not found"));
+
+        course.setTitle(courseRequestDTO.getTitle());
+        course.setDescription(courseRequestDTO.getDescription());
+        course.setInstructor(instructor);
+
+        Course updatedCourse = courseRepository.save(course);
+
+        return CourseMapper.toResponseDTO(updatedCourse);
     }
 
-    @Override
     public void deleteCourse(Long id) {
+        if (!courseRepository.existsById(id)) {
+            throw new IllegalArgumentException("Course not found");
+        }
         courseRepository.deleteById(id);
     }
 }
+
+

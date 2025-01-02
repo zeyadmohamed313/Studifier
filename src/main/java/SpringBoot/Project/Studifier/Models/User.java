@@ -1,5 +1,6 @@
 package SpringBoot.Project.Studifier.Models;
 import SpringBoot.Project.Studifier.Helpers.Role;
+import SpringBoot.Project.Studifier.Requests.UserDTO;
 import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.persistence.Column;
 import jakarta.persistence.Table;
@@ -9,7 +10,7 @@ import java.util.Set;
 
 @Entity
 @Table(name = "Users")
-@Schema(description = "User entity")
+@Schema(name = "User", description = "User entity")
 public class User {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -134,6 +135,15 @@ public class User {
 
     public void setReceivedMessages(Set<Message> receivedMessages) {
         this.receivedMessages = receivedMessages;
+    }
+
+    public static User fromDTO(UserDTO userDTO) {
+        return new User(
+                userDTO.getUsername(),
+                userDTO.getPassword(),
+                userDTO.getEmail(),
+                userDTO.getRole()
+        );
     }
 
     // toString method

@@ -2,7 +2,9 @@ package SpringBoot.Project.Studifier.Controllers;
 
 import SpringBoot.Project.Studifier.Helpers.ApiResponse;
 import SpringBoot.Project.Studifier.Models.User;
+import SpringBoot.Project.Studifier.Requests.UserDTO;
 import SpringBoot.Project.Studifier.Services.User.UserService;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -11,7 +13,8 @@ import org.springframework.web.bind.annotation.*;
 import java.util.List;
 
 @RestController
-@RequestMapping("/api/users")  // Updated the base path to /api/users for consistency
+@RequestMapping("/api/users")
+@Tag(name = "User API")
 public class UserController {
 
     @Autowired
@@ -30,13 +33,13 @@ public class UserController {
 
     // Endpoint to get all users
     @GetMapping("/all")
-    public ResponseEntity<ApiResponse<List<User>>> getAllUsers() {
-        List<User> users = userService.getAllUsers();
-        if (users.isEmpty()) {
+    public ResponseEntity<ApiResponse<List<UserDTO>>> getAllUsers() {
+        List<UserDTO> userDTOs = userService.getAllUsers();
+        if (userDTOs.isEmpty()) {
             return ResponseEntity.status(HttpStatus.NO_CONTENT)
                     .body(new ApiResponse<>("No users found", HttpStatus.NO_CONTENT));
         }
-        return ResponseEntity.ok(new ApiResponse<>(users, HttpStatus.OK));
+        return ResponseEntity.ok(new ApiResponse<>(userDTOs, HttpStatus.OK));
     }
 
     // Endpoint to get user by ID
@@ -52,9 +55,9 @@ public class UserController {
 
     // Endpoint to create a new user
     @PostMapping("/create")
-    public ResponseEntity<ApiResponse<User>> createUser(@RequestBody User user) {
+    public ResponseEntity<ApiResponse<User>> createUser(@RequestBody UserDTO userDTO) {
         try {
-            User createdUser = userService.createUser(user);
+            User createdUser = userService.createUser(userDTO);
             return ResponseEntity.status(HttpStatus.CREATED)
                     .body(new ApiResponse<>(createdUser, HttpStatus.CREATED));
         } catch (Exception e) {

@@ -18,18 +18,17 @@ public class Enrollment {
     @JoinColumn(name = "course_id", nullable = false)
     private Course course;
 
-    @NotNull(message = "Enrollment date is mandatory")
     @PastOrPresent(message = "Enrollment date must be in the past or present")
-    @Column(nullable = false)
-    private LocalDate enrollmentDate;
+    @Column(nullable = true)
+    private LocalDate enrollmentDate = LocalDate.now();
 
-    @NotNull(message = "Completion status is mandatory")
-    private Boolean completed;
+    @Column(nullable = true)
+    private Boolean completed = false;
 
     @PositiveOrZero(message = "Progress percentage must be zero or a positive number")
     @Max(value = 100, message = "Progress percentage cannot exceed 100")
-    @Column(nullable = false)
-    private int progressPercentage;
+    @Column(nullable = true)
+    private int progressPercentage = 0;
 
     // Default constructor
     public Enrollment() {}

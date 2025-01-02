@@ -37,12 +37,11 @@ public class Course {
     private Set<Quiz> quizzes;
 
     @PositiveOrZero(message = "Duration must be zero or a positive number")
-    @Column(nullable = false)
+    @Column(nullable = true)
     private int duration; // Duration in hours
 
-    @NotNull(message = "Start date is mandatory")
     @FutureOrPresent(message = "Start date must be in the present or future")
-    @Column(nullable = false)
+    @Column(nullable = true)
     private LocalDate startDate;
 
     // Default constructor

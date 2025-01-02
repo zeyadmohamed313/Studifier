@@ -17,14 +17,18 @@ public class SecurityConfig {
     public SecurityFilterChain securityFilterChain(HttpSecurity http, JwtAuthenticationFilter jwtAuthenticationFilter) throws Exception {
         http.csrf(csrf -> csrf.disable())
                 .authorizeHttpRequests(auth -> auth
-//                        .requestMatchers("/api/public/**").permitAll() // Public endpoints
-                        .requestMatchers("/api/admin/**").authenticated() // Secure endpoints
-                        .anyRequest().permitAll() // Default rule
+                        // Allow Swagger UI and OpenAPI endpoints
+                        .requestMatchers("/swagger-ui/**", "/v3/api-docs/**").permitAll()
+                        // Protect admin endpoints
+                        .requestMatchers("/api/admin/**").authenticated()
+                        // Default rule
+                        .anyRequest().permitAll()
                 )
                 .addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class);
 
         return http.build();
     }
+
 
     @Bean
     public PasswordEncoder passwordEncoder() {

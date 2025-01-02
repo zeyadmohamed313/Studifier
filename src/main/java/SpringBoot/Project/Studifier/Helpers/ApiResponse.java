@@ -1,10 +1,17 @@
 package SpringBoot.Project.Studifier.Helpers;
 
 import io.swagger.v3.oas.annotations.media.Schema;
+import lombok.Getter;
 import org.springframework.http.HttpStatus;
 
+
+import com.fasterxml.jackson.annotation.JsonInclude;
+
+@Getter
 @Schema(description = "Standard API Response wrapper")
+@JsonInclude(JsonInclude.Include.NON_NULL)
 public class ApiResponse<T> {
+    // Getters and setters with updated statusCode
     @Schema(description = "Indicates if the request was successful", example = "true")
     private boolean success;
 
@@ -14,8 +21,8 @@ public class ApiResponse<T> {
     @Schema(description = "Response payload data")
     private T data;
 
-    @Schema(description = "HTTP status code", example = "200 OK")
-    private HttpStatus status;
+    @Schema(description = "HTTP status", example = "OK")
+    private String statusCode;  // Changed from HttpStatus to String
 
     public ApiResponse(boolean success, String message, T data) {
         this.success = success;
@@ -26,45 +33,29 @@ public class ApiResponse<T> {
     public ApiResponse(T data, HttpStatus status) {
         this.success = true;
         this.data = data;
-        this.status = status;
+        this.statusCode = status.name();  // Convert HttpStatus to String
         this.message = status.getReasonPhrase();
     }
 
     public ApiResponse(String message, HttpStatus status) {
         this.success = status.is2xxSuccessful();
         this.message = message;
-        this.status = status;
-    }
-
-    public boolean isSuccess() {
-        return success;
+        this.statusCode = status.name();  // Convert HttpStatus to String
     }
 
     public void setSuccess(boolean success) {
         this.success = success;
     }
 
-    public String getMessage() {
-        return message;
-    }
-
     public void setMessage(String message) {
         this.message = message;
-    }
-
-    public T getData() {
-        return data;
     }
 
     public void setData(T data) {
         this.data = data;
     }
 
-    public HttpStatus getStatus() {
-        return status;
-    }
-
-    public void setStatus(HttpStatus status) {
-        this.status = status;
+    public void setStatusCode(HttpStatus status) {
+        this.statusCode = status.name();
     }
 }

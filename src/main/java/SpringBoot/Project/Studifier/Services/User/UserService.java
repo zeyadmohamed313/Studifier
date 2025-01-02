@@ -1,7 +1,9 @@
 package SpringBoot.Project.Studifier.Services.User;
 
+import SpringBoot.Project.Studifier.Mapper.UserMapper;
 import SpringBoot.Project.Studifier.Models.User;
 import SpringBoot.Project.Studifier.Repositories.UserRepository;
+import SpringBoot.Project.Studifier.Requests.UserDTO;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -21,8 +23,9 @@ public class UserService implements IUserService {
     private PasswordEncoder passwordEncoder = new BCryptPasswordEncoder();
 
     @Override
-    public List<User> getAllUsers() {
-        return userRepository.findAll();
+    public List<UserDTO> getAllUsers() {
+        List<User> users = userRepository.findAll();
+        return UserMapper.toDTOList(users); // Map User entities to UserDTOs
     }
 
     @Override
@@ -36,10 +39,11 @@ public class UserService implements IUserService {
     }
 
     @Override
-    public User createUser(User user) {
-        user.setPassword(passwordEncoder.encode(user.getPassword()));
+    public User createUser(UserDTO userDTO) {
+        User user = User.fromDTO(userDTO); // Convert DTO to Entity
         return userRepository.save(user);
     }
+
 
 
     public String getCurrentUsername() {
