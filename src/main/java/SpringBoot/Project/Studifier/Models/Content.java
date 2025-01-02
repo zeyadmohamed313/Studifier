@@ -19,7 +19,7 @@ public class Content {
     private String title;
 
     @NotBlank(message = "Type is mandatory")
-    @Column(nullable = false)
+    @Column(nullable = true)
     private String type; // e.g., VIDEO, TEXT, QUIZ
 
     @NotBlank(message = "URL is mandatory")
@@ -29,8 +29,8 @@ public class Content {
 
     @NotNull(message = "Creation date is mandatory")
     @PastOrPresent(message = "Creation date must be in the past or present")
-    @Column(nullable = false)
-    private LocalDate creationDate;
+    @Column(nullable = true)
+    private LocalDate creationDate = LocalDate.now();
 
     @ManyToOne
     @JoinColumn(name = "course_id", nullable = false)
@@ -85,8 +85,11 @@ public class Content {
         return creationDate;
     }
 
-    public void setCreationDate(LocalDate creationDate) {
-        this.creationDate = creationDate;
+    @PrePersist
+    private void setDefaultCreationDate() {
+        if (this.creationDate == null) {
+            this.creationDate = LocalDate.now();
+        }
     }
 
     public Course getCourse() {
